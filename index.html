@@ -1,169 +1,462 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flag Recall Practice</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background: #0b1020;
-  color: white;
-  padding: 20px;
-}
-button {
-  padding: 12px 16px;
-  margin: 8px;
-  font-size: 16px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-}
-.primary { background: #7aa7ff; color: black; }
-.correct { background: #2ee59d; }
-.wrong { background: #ff5c7a; color: white; }
-.flag {
-  font-size: 90px;
-  margin: 20px;
-}
-.hidden { display:none; }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flag Recall Practice</title>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#141b34; --text:#eaf0ff; --muted:#aab6e6;
+      --accent:#7aa7ff; --good:#2ee59d; --bad:#ff5c7a;
+    }
+    body{
+      margin:0; font-family:-apple-system,system-ui,Segoe UI,Roboto,Arial;
+      background: radial-gradient(1200px 800px at 20% 0%, #1a2460 0%, var(--bg) 55%);
+      color:var(--text); text-align:center;
+    }
+    .wrap{ max-width: 880px; margin:0 auto; padding:18px; }
+    h1{ font-size:22px; margin:10px 0 6px; }
+    .sub{ color:var(--muted); font-size:13px; margin-bottom:12px; }
+    .bar{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin: 10px 0 16px; }
+    button{
+      border:0; border-radius:14px; padding:12px 16px; font-weight:700;
+      cursor:pointer; background:rgba(255,255,255,.10); color:var(--text);
+      border:1px solid rgba(255,255,255,.16);
+    }
+    button.primary{ background:var(--accent); color:#081022; border:0; }
+    button.good{ background:var(--good); color:#071a12; border:0; }
+    button.bad{ background:var(--bad); color:#fff; border:0; }
+    button.active{ box-shadow: 0 0 0 3px rgba(122,167,255,.18) inset; border-color: rgba(122,167,255,.55); }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .card{
+      background: rgba(20,27,52,.85);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:18px; padding:16px;
+      box-shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+    .flagBox{
+      display:flex; align-items:center; justify-content:center;
+      min-height:220px; border-radius:16px;
+      background:rgba(255,255,255,.04);
+      border:1px dashed rgba(255,255,255,.18);
+      margin: 12px 0;
+    }
+    .flag{ font-size:110px; line-height:1; }
+    .msg{ font-size:16px; margin:6px 0; }
+    .muted{ color:var(--muted); font-size:13px; }
+    .row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px; }
+
+    .options{
+      display:grid; gap:10px; margin-top:12px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 700px){ .options{ grid-template-columns: 1fr 1fr; } }
+
+    .pill{
+      display:inline-block; padding:8px 10px; border-radius:999px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.12);
+      font-size:12px; color:var(--muted);
+      margin: 6px 0 0;
+    }
+  </style>
 </head>
 <body>
+<div class="wrap">
+  <h1>🌍 Flag Recall Practice</h1>
+  <div class="sub">Self-practice for Grade 1: Learn • Quiz • Memory Round (5 flags) • Speed</div>
 
-<h2>🌍 Flag Recall Practice</h2>
+  <div class="bar">
+    <button id="btnLearn" class="active" onclick="setMode('learn')">Learn</button>
+    <button id="btnQuiz" onclick="setMode('quiz')">Quiz</button>
+    <button id="btnMemory" onclick="setMode('memory')">Memory Round</button>
+    <button id="btnSpeed" onclick="setMode('speed')">Speed</button>
+  </div>
 
-<div>
-<button class="primary" onclick="setMode('learn')">Learn</button>
-<button class="primary" onclick="setMode('quiz')">Quiz</button>
-<button class="primary" onclick="setMode('memory')">Memory Round</button>
-<button class="primary" onclick="setMode('speed')">Speed</button>
-</div>
+  <div class="card">
+    <div class="pill" id="modePill">Mode: Learn</div>
 
-<div id="mainArea">
-<div class="flag" id="flagDisplay">🏳️</div>
-<div id="message">Press Next to start</div>
-<button class="primary" onclick="nextFlag()">Next</button>
-<button onclick="showAnswer()">Show Answer</button>
-</div>
+    <div class="flagBox">
+      <div class="flag" id="flagEmoji">🏳️</div>
+    </div>
 
-<div id="memoryArea" class="hidden">
-<div id="memoryMessage"></div>
-<div class="flag" id="memoryFlag"></div>
-<div id="memoryOptions"></div>
+    <div class="msg" id="message">Tap <b>Next</b> to start.</div>
+    <div class="muted" id="hint">Tip: Notice shapes (stars, stripes, circle, leaf).</div>
+
+    <!-- Learn controls -->
+    <div class="row" id="controlsLearn">
+      <button class="primary" onclick="nextFlag()">Next</button>
+      <button onclick="showAnswer()">Show Answer</button>
+      <button onclick="speakAnswer()">🔊 Speak</button>
+    </div>
+
+    <!-- Quiz controls -->
+    <div id="controlsQuiz" style="display:none;">
+      <div class="row">
+        <button class="primary" onclick="newQuiz()">New Question</button>
+        <button onclick="speakAnswer()">🔊 Speak</button>
+      </div>
+      <div class="options" id="quizOptions"></div>
+    </div>
+
+    <!-- Memory controls -->
+    <div id="controlsMemory" style="display:none;">
+      <div class="row">
+        <button class="primary" onclick="startMemory()">Start Memory Round</button>
+      </div>
+      <div class="options" id="memoryOptions"></div>
+    </div>
+
+    <!-- Speed controls -->
+    <div id="controlsSpeed" style="display:none;">
+      <div class="row">
+        <button class="primary" onclick="startSpeed()">Start</button>
+        <button onclick="stopSpeed()">Stop</button>
+      </div>
+      <div class="pill">Time: <span id="speedTime">0</span>s • Done: <span id="speedDone">0</span>/10 • Correct: <span id="speedCorrect">0</span></div>
+      <div class="options" id="speedOptions"></div>
+    </div>
+  </div>
 </div>
 
 <script>
+/* =======================
+   ALL-COUNTRY POOL (most countries + many territories)
+   ======================= */
+const COUNTRY_CODES = `
+AD,AE,AF,AG,AI,AL,AM,AO,AR,AS,AT,AU,AW,AX,AZ,
+BA,BB,BD,BE,BF,BG,BH,BI,BJ,BL,BM,BN,BO,BQ,BR,BS,BT,BV,BW,BY,BZ,
+CA,CC,CD,CF,CG,CH,CI,CK,CL,CM,CN,CO,CR,CU,CV,CW,CX,CY,CZ,
+DE,DJ,DK,DM,DO,DZ,
+EC,EE,EG,EH,ER,ES,ET,
+FI,FJ,FK,FM,FO,FR,
+GA,GB,GD,GE,GF,GG,GH,GI,GL,GM,GN,GP,GQ,GR,GS,GT,GU,GW,GY,
+HK,HM,HN,HR,HT,HU,
+ID,IE,IL,IM,IN,IO,IQ,IR,IS,IT,
+JE,JM,JO,JP,
+KE,KG,KH,KI,KM,KN,KP,KR,KW,KY,KZ,
+LA,LB,LC,LI,LK,LR,LS,LT,LU,LV,LY,
+MA,MC,MD,ME,MF,MG,MH,MK,ML,MM,MN,MO,MP,MQ,MR,MS,MT,MU,MV,MW,MX,MY,MZ,
+NA,NC,NE,NF,NG,NI,NL,NO,NP,NR,NU,NZ,
+OM,
+PA,PE,PF,PG,PH,PK,PL,PM,PN,PR,PS,PT,PW,PY,
+QA,
+RE,RO,RS,RU,RW,
+SA,SB,SC,SD,SE,SG,SH,SI,SJ,SK,SL,SM,SN,SO,SR,SS,ST,SV,SX,SY,SZ,
+TC,TD,TF,TG,TH,TJ,TK,TL,TM,TN,TO,TR,TT,TV,TW,TZ,
+UA,UG,UM,US,UY,UZ,
+VA,VC,VE,VG,VI,VN,VU,
+WF,WS,
+YE,YT,
+ZA,ZM,ZW
+`.replace(/\s+/g,"").split(",").filter(Boolean);
 
-// ---------- Country Dictionary ----------
-const codes = ["CA","US","IN","JP","GB","AU","CN","BR","FR","DE","IT","ES","MX","ZA","KR","RU","AR","TR","SA","SE"];
+const dn = (Intl && Intl.DisplayNames) ? new Intl.DisplayNames(["en"], {type:"region"}) : null;
 
-function toFlag(code) {
-  return code.replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt()));
+function codeToFlagEmoji(code){
+  return code.toUpperCase().replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0)));
+}
+function codeToName(code){
+  return dn ? (dn.of(code.toUpperCase()) || code.toUpperCase()) : code.toUpperCase();
 }
 
-const countries = new Intl.DisplayNames(['en'], {type:'region'});
+const FLAGS = COUNTRY_CODES.map(c => ({ code:c.toUpperCase(), emoji:codeToFlagEmoji(c), name:codeToName(c)}))
+  .filter(x => x.name && x.emoji);
 
+/* =======================
+   UI helpers
+   ======================= */
+const elFlag = document.getElementById("flagEmoji");
+const elMsg = document.getElementById("message");
+const elHint = document.getElementById("hint");
+const modePill = document.getElementById("modePill");
+
+const controlsLearn = document.getElementById("controlsLearn");
+const controlsQuiz = document.getElementById("controlsQuiz");
+const controlsMemory = document.getElementById("controlsMemory");
+const controlsSpeed = document.getElementById("controlsSpeed");
+
+const quizOptions = document.getElementById("quizOptions");
+const memoryOptions = document.getElementById("memoryOptions");
+const speedOptions = document.getElementById("speedOptions");
+
+const btnLearn = document.getElementById("btnLearn");
+const btnQuiz  = document.getElementById("btnQuiz");
+const btnMemory= document.getElementById("btnMemory");
+const btnSpeed = document.getElementById("btnSpeed");
+
+/* =======================
+   Core state
+   ======================= */
 let mode = "learn";
-let current = "";
-let memorySet = [];
-let memoryIndex = 0;
-let score = 0;
+let current = null;
 
-// ---------- Mode Switch ----------
+/* random pick avoiding immediate repeat */
+function pickRandomFlag(prevCode=null){
+  if (FLAGS.length === 0) return null;
+  let f = FLAGS[Math.floor(Math.random()*FLAGS.length)];
+  while (prevCode && f.code === prevCode) f = FLAGS[Math.floor(Math.random()*FLAGS.length)];
+  return f;
+}
+
+function renderFlag(f){
+  current = f;
+  elFlag.textContent = f ? f.emoji : "🏳️";
+}
+
+/* =======================
+   Mode switching
+   ======================= */
+function setActiveButton(){
+  [btnLearn,btnQuiz,btnMemory,btnSpeed].forEach(b => b.classList.remove("active"));
+  ({learn:btnLearn, quiz:btnQuiz, memory:btnMemory, speed:btnSpeed}[mode]).classList.add("active");
+}
+
 function setMode(m){
+  stopSpeed(); // stop timers if any
   mode = m;
-  document.getElementById("memoryArea").classList.add("hidden");
-  document.getElementById("mainArea").classList.remove("hidden");
-  document.getElementById("message").innerHTML = "Press Next to start";
+  setActiveButton();
+
+  controlsLearn.style.display = (mode==="learn") ? "flex" : "none";
+  controlsQuiz.style.display  = (mode==="quiz") ? "block" : "none";
+  controlsMemory.style.display= (mode==="memory") ? "block" : "none";
+  controlsSpeed.style.display = (mode==="speed") ? "block" : "none";
+
+  quizOptions.innerHTML = "";
+  memoryOptions.innerHTML = "";
+  speedOptions.innerHTML = "";
+
+  modePill.textContent = "Mode: " + (mode==="learn"?"Learn":mode==="quiz"?"Quiz":mode==="memory"?"Memory Round":"Speed");
+
+  if (mode==="learn"){
+    elMsg.innerHTML = "Tap <b>Next</b> to start.";
+    elHint.textContent = "Learn: Look → Say the country → Check answer.";
+    renderFlag(pickRandomFlag(current?.code));
+  }
+  if (mode==="quiz"){
+    elHint.textContent = "Quiz: Tap the correct country name.";
+    newQuiz();
+  }
+  if (mode==="memory"){
+    elHint.textContent = "Memory Round: Watch 5 flags → Answer questions.";
+    renderFlag(pickRandomFlag(current?.code));
+    elMsg.textContent = "Press Start Memory Round.";
+  }
+  if (mode==="speed"){
+    elHint.textContent = "Speed: 10 questions timed. Tap the correct answer fast!";
+    resetSpeedUI();
+    renderFlag(pickRandomFlag(current?.code));
+    elMsg.textContent = "Press Start.";
+  }
 }
 
-// ---------- Random Flag ----------
-function randomCode(){
-  return codes[Math.floor(Math.random()*codes.length)];
-}
-
+/* =======================
+   Learn
+   ======================= */
 function nextFlag(){
-  current = randomCode();
-  document.getElementById("flagDisplay").innerHTML = toFlag(current);
-  document.getElementById("message").innerHTML = "";
+  renderFlag(pickRandomFlag(current?.code));
+  elMsg.textContent = "Say it out loud 🎤";
 }
 
 function showAnswer(){
-  document.getElementById("message").innerHTML = countries.of(current);
+  if (!current) return;
+  elMsg.innerHTML = "<b>" + current.name + "</b>";
 }
 
-// ---------- Memory Round ----------
-function startMemory(){
-  memorySet = [];
-  score = 0;
-  memoryIndex = 0;
-
-  for(let i=0;i<5;i++){
-    memorySet.push(randomCode());
+/* simple TTS */
+function speakAnswer(){
+  if (!current) return;
+  if (!("speechSynthesis" in window)) { elMsg.textContent = current.name; return; }
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(current.name);
+    u.rate = 0.95;
+    speechSynthesis.speak(u);
+  }catch(e){
+    elMsg.textContent = current.name;
   }
+}
 
-  document.getElementById("mainArea").classList.add("hidden");
-  document.getElementById("memoryArea").classList.remove("hidden");
+/* =======================
+   Quiz (self-practice)
+   ======================= */
+function sampleWrongAnswers(correctFlag, n=3){
+  const opts = [correctFlag];
+  while (opts.length < n+1){
+    const f = pickRandomFlag();
+    if (!opts.some(x => x.code === f.code)) opts.push(f);
+  }
+  // shuffle
+  return opts.sort(() => Math.random()-0.5);
+}
 
+function newQuiz(){
+  renderFlag(pickRandomFlag(current?.code));
+  elMsg.textContent = "Which country is this flag?";
+  quizOptions.innerHTML = "";
+
+  const options = sampleWrongAnswers(current, 3);
+  options.forEach(opt => {
+    const b = document.createElement("button");
+    b.textContent = opt.name;
+    b.onclick = () => {
+      if (opt.code === current.code){
+        elMsg.innerHTML = "✅ Correct: <b>" + current.name + "</b>";
+      } else {
+        elMsg.innerHTML = "❌ Wrong. Correct: <b>" + current.name + "</b>";
+      }
+      // new question after a short pause
+      setTimeout(newQuiz, 900);
+    };
+    quizOptions.appendChild(b);
+  });
+}
+
+/* =======================
+   Memory Round (5 flags, self-practice)
+   Shows 5 flags automatically, then asks:
+   Q1: first, Q2: last, Q3: which one was shown (recognition)
+   ======================= */
+let memSeq = [];
+let memStep = 0;
+
+function startMemory(){
+  memSeq = [];
+  memStep = 0;
+  memoryOptions.innerHTML = "";
+  elMsg.textContent = "Watch carefully…";
+
+  // build 5 unique flags
+  while (memSeq.length < 5){
+    const f = pickRandomFlag();
+    if (!memSeq.some(x => x.code === f.code)) memSeq.push(f);
+  }
   showMemorySequence();
 }
 
 function showMemorySequence(){
-  if(memoryIndex < 5){
-    document.getElementById("memoryFlag").innerHTML = toFlag(memorySet[memoryIndex]);
-    document.getElementById("memoryMessage").innerHTML = "Remember this flag...";
-    setTimeout(()=>{
-      memoryIndex++;
-      showMemorySequence();
-    },2000);
+  memoryOptions.innerHTML = "";
+  if (memStep < 5){
+    renderFlag(memSeq[memStep]);
+    elMsg.textContent = `Remember flag ${memStep+1} of 5…`;
+    memStep++;
+    setTimeout(showMemorySequence, 1400);
   } else {
-    askMemoryQuestion();
+    renderFlag(null);
+    askMemoryQ1();
   }
 }
 
-function askMemoryQuestion(){
-  document.getElementById("memoryFlag").innerHTML = "";
-  document.getElementById("memoryMessage").innerHTML = "Which country was the FIRST flag?";
-
-  let correct = memorySet[0];
-  let options = [correct];
-
-  while(options.length<4){
-    let r = randomCode();
-    if(!options.includes(r)) options.push(r);
-  }
-
-  options.sort(()=>Math.random()-0.5);
-
-  let html="";
-  options.forEach(o=>{
-    html+= `<button onclick="checkMemory('${o}')">${countries.of(o)}</button>`;
+function makeChoiceButtons(correctFlag, onDone){
+  memoryOptions.innerHTML = "";
+  const options = sampleWrongAnswers(correctFlag, 3);
+  options.forEach(opt=>{
+    const b = document.createElement("button");
+    b.textContent = opt.name;
+    b.onclick = ()=>{
+      if (opt.code === correctFlag.code){
+        elMsg.innerHTML = "✅ Correct!";
+      } else {
+        elMsg.innerHTML = "❌ Wrong. Correct: <b>" + correctFlag.name + "</b>";
+      }
+      setTimeout(onDone, 850);
+    };
+    memoryOptions.appendChild(b);
   });
-
-  document.getElementById("memoryOptions").innerHTML = html;
 }
 
-function checkMemory(choice){
-  if(choice === memorySet[0]){
-    score++;
-    document.getElementById("memoryMessage").innerHTML = "✅ Correct!";
-  } else {
-    document.getElementById("memoryMessage").innerHTML = "❌ Wrong! It was "+countries.of(memorySet[0]);
+function askMemoryQ1(){
+  elMsg.textContent = "Question 1: What was the FIRST flag?";
+  makeChoiceButtons(memSeq[0], askMemoryQ2);
+}
+function askMemoryQ2(){
+  elMsg.textContent = "Question 2: What was the LAST flag?";
+  makeChoiceButtons(memSeq[4], askMemoryQ3);
+}
+function askMemoryQ3(){
+  // recognition: show one of the 5 flags and ask to pick it
+  const target = memSeq[Math.floor(Math.random()*memSeq.length)];
+  renderFlag(target);
+  elMsg.textContent = "Question 3: Which country is this (from the 5 you saw)?";
+  makeChoiceButtons(target, ()=>{
+    renderFlag(null);
+    elMsg.textContent = "Memory Round complete! 🎉 Press Start again to retry.";
+    memoryOptions.innerHTML = "";
+  });
+}
+
+/* =======================
+   Speed Round
+   10 questions timed. Multiple-choice.
+   ======================= */
+let speedRunning = false;
+let speedStart = 0;
+let speedTimer = null;
+let speedCount = 0;
+let speedCorrect = 0;
+
+const elSpeedTime = document.getElementById("speedTime");
+const elSpeedDone = document.getElementById("speedDone");
+const elSpeedCorrect = document.getElementById("speedCorrect");
+
+function resetSpeedUI(){
+  elSpeedTime.textContent = "0";
+  elSpeedDone.textContent = "0";
+  elSpeedCorrect.textContent = "0";
+}
+
+function startSpeed(){
+  stopSpeed();
+  speedRunning = true;
+  speedStart = Date.now();
+  speedCount = 0;
+  speedCorrect = 0;
+  resetSpeedUI();
+  elMsg.textContent = "Go!";
+  speedTimer = setInterval(()=>{
+    elSpeedTime.textContent = String(Math.floor((Date.now()-speedStart)/1000));
+  }, 250);
+  nextSpeedQuestion();
+}
+
+function stopSpeed(){
+  speedRunning = false;
+  if (speedTimer) clearInterval(speedTimer);
+  speedTimer = null;
+}
+
+function nextSpeedQuestion(){
+  if (!speedRunning) return;
+  if (speedCount >= 10){
+    stopSpeed();
+    elMsg.innerHTML = `Done! ✅ Correct: <b>${speedCorrect}/10</b> • Time: <b>${elSpeedTime.textContent}s</b>`;
+    speedOptions.innerHTML = "";
+    return;
   }
 
-  setTimeout(()=>{
-    document.getElementById("memoryOptions").innerHTML = "";
-    document.getElementById("memoryMessage").innerHTML = "Score: "+score+"/1";
-    document.getElementById("mainArea").classList.remove("hidden");
-    document.getElementById("memoryArea").classList.add("hidden");
-  },2000);
+  renderFlag(pickRandomFlag(current?.code));
+  speedOptions.innerHTML = "";
+  elSpeedDone.textContent = String(speedCount);
+  elSpeedCorrect.textContent = String(speedCorrect);
+
+  const options = sampleWrongAnswers(current, 3);
+  options.forEach(opt=>{
+    const b = document.createElement("button");
+    b.textContent = opt.name;
+    b.onclick = ()=>{
+      speedCount++;
+      if (opt.code === current.code) speedCorrect++;
+      elSpeedDone.textContent = String(speedCount);
+      elSpeedCorrect.textContent = String(speedCorrect);
+      nextSpeedQuestion();
+    };
+    speedOptions.appendChild(b);
+  });
 }
 
-// Hook memory mode button
-document.querySelector("button[onclick=\"setMode('memory')\"]").onclick = startMemory;
-
+/* Init */
+setMode("learn");
 </script>
-
 </body>
 </html>
