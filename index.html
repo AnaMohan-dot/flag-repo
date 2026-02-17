@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Grade 1 – Flag Practice (All Countries)</title>
+  <style>
+    :root { --bg:#0b1020; --card:#141b34; --text:#eaf0ff; --muted:#aab6e6; --accent:#7aa7ff; --good:#2ee59d; --bad:#ff5c7a; }
+    body { margin:0; font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial; background: radial-gradient(1200px 800px at 20% 0%, #1a2460 0%, var(--bg) 50%); color:var(--text); }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 18px; }
+    h1 { font-size: 20px; margin: 6px 0 2px; }
+    .sub { color:var(--muted); font-size: 13px; margin-bottom: 12px; }
+    .tabs { display:flex; gap:10px; flex-wrap:wrap; margin: 10px 0 14px; }
+    .tab { border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color:var(--text); padding:10px 12px; border-radius: 12px; cursor:pointer; user-select:none; }
+    .tab.active { border-color: rgba(122,167,255,.7); box-shadow: 0 0 0 3px rgba(122,167,255,.15) inset; }
+    .grid { display:grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 900px) { .grid { grid-template-columns: 1.35fr .65fr; } }
+
+    .card { background: rgba(20,27,52,.85); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+    .flagBox { display:flex; align-items:center; justify-content:center; min-height: 260px; border-radius: 16px; background: rgba(255,255,255,.04); border: 1px dashed rgba(255,255,255,.18); }
+    .flagEmoji { font-size: 120px; line-height: 1; }
+    .big { font-size: 16px; }
+    .muted { color: var(--muted); }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    button { border:0; border-radius: 14px; padding: 12px 14px; cursor:pointer; font-weight: 650; color: #081022; background: var(--accent); }
+    button.secondary { background: rgba(255,255,255,.10); color: var(--text); border: 1px solid rgba(255,255,255,.16); }
+    button.good { background: var(--good); }
+    button.bad { background: var(--bad); color: #fff; }
+    button:active { transform: translateY(1px); }
+    button:disabled { opacity:.55; cursor:not-allowed; transform:none; }
+    .pill { padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); font-size: 12px; }
+    .stats { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .stat { padding: 10px; border-radius: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); }
+    .stat .k { font-size: 12px; color: var(--muted); }
+    .stat .v { font-size: 20px; font-weight: 750; margin-top: 2px; }
+    .list { margin-top:10px; display:grid; gap:8px; max-height: 420px; overflow:auto; padding-right: 4px; }
+    .li { display:flex; justify-content:space-between; gap:10px; padding: 10px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); }
+    .li small { color: var(--muted); }
+    .footerNote { margin-top: 10px; font-size: 12px; color: var(--muted); }
+    input[type="range"] { width: 160px; }
+    .hr { height: 1px; background: rgba(255,255,255,.10); margin: 12px 0; }
+    .tiny { font-size: 12px; color: var(--muted); }
+    .search { width: 100%; padding: 10px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color: var(--text); outline: none; }
+    .search::placeholder { color: rgba(170,182,230,.75); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>Grade 1 – Flag Practice (All Countries)</h1>
+    <div class="sub">Random flag every time. Oral practice: kid says it, parent taps ✅/❌. Progress saves on this device.</div>
+
+    <div class="tabs">
+      <div class="tab active" data-mode="learn">Learn</div>
+      <div class="tab" data-mode="quiz">Quiz (Oral)</div>
+      <div class="tab" data-mode="speed">Speed Round</div>
+      <div class="tab" data-mode="progress">Progress</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="row" style="justify-content:space-between;">
+          <div class="pill" id="modePill">Mode: Learn</div>
+          <div class="row">
+            <div class="pill">Voice: <span id="voiceStatus">Ready</span></div>
+            <button class="secondary" id="speakBtn" title="Speak the country name">🔊 Speak</button>
+          </div>
+        </div>
+
+        <div class="flagBox" style="margin-top: 12px;">
+          <div class="flagEmoji" id="flagEmoji">🏳️</div>
+        </div>
+
+        <div class="row" style="justify-content:space-between; margin-top: 12px;">
+          <div>
+            <div class="big" id="promptLine">Tap “Next” to start.</div>
+            <div class="muted" id="hintLine">Tip: look at shapes (stars, stripes, circle, leaf).</div>
+          </div>
+          <div class="pill" id="counterPill">Random</div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row">
+          <button id="nextBtn">Next ➜</button>
+          <button class="secondary" id="showBtn">Show Answer</button>
+          <button class="secondary" id="repeatBtn">Repeat Flag</button>
+          <button class="secondary" id="resetBtn" title="Reset progress on this device">Reset Progress</button>
+        </div>
+
+        <div class="row" id="quizControls" style="margin-top: 10px; display:none;">
+          <button class="good" id="correctBtn">✅ Correct</button>
+          <button class="bad" id="wrongBtn">❌ Wrong</button>
+          <div class="pill">Kid speaks. Parent taps.</div>
+        </div>
+
+        <div class="row" id="speedControls" style="margin-top:10px; display:none;">
+          <button id="startSpeedBtn">⏱ Start</button>
+          <button class="secondary" id="stopSpeedBtn">Stop</button>
+          <div class="pill">Time: <span id="speedTime">0</span>s</div>
+          <div class="pill">Done: <span id="speedDone">0</span>/<span id="speedTarget">10</span></div>
+        </div>
+
+        <div class="footerNote" id="footerNote">
+          iPhone tip: open in Safari → Share → “Add to Home Screen” (it becomes a real app icon).
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="stats">
+          <div class="stat">
+            <div class="k">Total Attempts</div>
+            <div class="v" id="attemptsV">0</div>
+          </div>
+          <div class="stat">
+            <div class="k">Correct</div>
+            <div class="v" id="correctV">0</div>
+          </div>
+          <div class="stat">
+            <div class="k">Accuracy</div>
+            <div class="v" id="accuracyV">0%</div>
+          </div>
+          <div class="stat">
+            <div class="k">Best Streak</div>
+            <div class="v" id="streakV">0</div>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between;">
+          <div class="pill">Speech rate</div>
+          <input id="rate" type="range" min="0.7" max="1.2" step="0.05" value="0.95"/>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="justify-content:space-between;">
+          <div class="pill">Progress list (countries tried)</div>
+        </div>
+        <div class="tiny" style="margin:8px 0;">Search:</div>
+        <input class="search" id="searchBox" placeholder="Type country name… (e.g., Canada)" />
+
+        <div class="list" id="flagList"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // =========================
+  // ALL-COUNTRY FLAG POOL
+  // =========================
+
+  // ISO 3166-1 alpha-2 codes (UN members + many territories).
+  // You can add/remove any codes here anytime.
+  const COUNTRY_CODES = `
+AD,AE,AF,AG,AI,AL,AM,AO,AR,AS,AT,AU,AW,AX,AZ,
+BA,BB,BD,BE,BF,BG,BH,BI,BJ,BL,BM,BN,BO,BQ,BR,BS,BT,BV,BW,BY,BZ,
+CA,CC,CD,CF,CG,CH,CI,CK,CL,CM,CN,CO,CR,CU,CV,CW,CX,CY,CZ,
+DE,DJ,DK,DM,DO,DZ,
+EC,EE,EG,EH,ER,ES,ET,
+FI,FJ,FK,FM,FO,FR,
+GA,GB,GD,GE,GF,GG,GH,GI,GL,GM,GN,GP,GQ,GR,GS,GT,GU,GW,GY,
+HK,HM,HN,HR,HT,HU,
+ID,IE,IL,IM,IN,IO,IQ,IR,IS,IT,
+JE,JM,JO,JP,
+KE,KG,KH,KI,KM,KN,KP,KR,KW,KY,KZ,
+LA,LB,LC,LI,LK,LR,LS,LT,LU,LV,LY,
+MA,MC,MD,ME,MF,MG,MH,MK,ML,MM,MN,MO,MP,MQ,MR,MS,MT,MU,MV,MW,MX,MY,MZ,
+NA,NC,NE,NF,NG,NI,NL,NO,NP,NR,NU,NZ,
+OM,
+PA,PE,PF,PG,PH,PK,PL,PM,PN,PR,PS,PT,PW,PY,
+QA,
+RE,RO,RS,RU,RW,
+SA,SB,SC,SD,SE,SG,SH,SI,SJ,SK,SL,SM,SN,SO,SR,SS,ST,SV,SX,SY,SZ,
+TC,TD,TF,TG,TH,TJ,TK,TL,TM,TN,TO,TR,TT,TV,TW,TZ,
+UA,UG,UM,US,UY,UZ,
+VA,VC,VE,VG,VI,VN,VU,
+WF,WS,
+YE,YT,
+ZA,ZM,ZW
+`.replace(/\s+/g, "").split(",").filter(Boolean);
+
+  const displayNames = (typeof Intl !== "undefined" && Intl.DisplayNames)
+    ? new Intl.DisplayNames(["en"], { type: "region" })
+    : null;
+
+  function codeToFlagEmoji(code) {
+    return code
+      .toUpperCase()
+      .replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0)));
+  }
+
+  function codeToCountryName(code) {
+    return displayNames ? (displayNames.of(code.toUpperCase()) || code.toUpperCase()) : code.toUpperCase();
+  }
+
+  // Build dictionary of countries
+  const FLAGS = COUNTRY_CODES.map(code => ({
+    code: code.toUpperCase(),
+    emoji: codeToFlagEmoji(code),
+    name: codeToCountryName(code),
+  }))
+  // Some browsers return undefined for a few codes; filter just in case
+  .filter(x => x.name && x.emoji);
+
+  // =========================
+  // STORAGE / STATS
+  // =========================
+  const LS_KEY = "grade1_flag_practice_all_v1";
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch { return null; }
+  }
+  function saveState(s) {
+    localStorage.setItem(LS_KEY, JSON.stringify(s));
+  }
+  function freshState() {
+    return {
+      attempts: 0,
+      correct: 0,
+      bestStreak: 0,
+      streak: 0,
+      per: {} // per[countryCode] = { attempts, correct }
+    };
+  }
+
+  let state = loadState() || freshState();
+
+  function ensurePer(code) {
+    if (!state.per[code]) state.per[code] = { attempts: 0, correct: 0 };
+  }
+
+  // =========================
+  // UI ELEMENTS
+  // =========================
+  const tabs = [...document.querySelectorAll(".tab")];
+  const modePill = document.getElementById("modePill");
+  const flagEmoji = document.getElementById("flagEmoji");
+  const promptLine = document.getElementById("promptLine");
+  const hintLine = document.getElementById("hintLine");
+  const counterPill = document.getElementById("counterPill");
+
+  const nextBtn = document.getElementById("nextBtn");
+  const showBtn = document.getElementById("showBtn");
+  const repeatBtn = document.getElementById("repeatBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  const quizControls = document.getElementById("quizControls");
+  const correctBtn = document.getElementById("correctBtn");
+  const wrongBtn = document.getElementById("wrongBtn");
+
+  const speedControls = document.getElementById("speedControls");
+  const startSpeedBtn = document.getElementById("startSpeedBtn");
+  const stopSpeedBtn = document.getElementById("stopSpeedBtn");
+  const speedTime = document.getElementById("speedTime");
+  const speedDone = document.getElementById("speedDone");
+  const speedTarget = document.getElementById("speedTarget");
+
+  const speakBtn = document.getElementById("speakBtn");
+  const voiceStatus = document.getElementById("voiceStatus");
+  const rateSlider = document.getElementById("rate");
+
+  const attemptsV = document.getElementById("attemptsV");
+  const correctV = document.getElementById("correctV");
+  const accuracyV = document.getElementById("accuracyV");
+  const streakV = document.getElementById("streakV");
+  const flagList = document.getElementById("flagList");
+  const searchBox = document.getElementById("searchBox");
+
+  // =========================
+  // APP STATE
+  // =========================
+  let mode = "learn";
+  let currentIdx = -1;       // index into FLAGS
+  let revealed = false;
+
+  // Speed round
+  let speedRunning = false;
+  let speedStart = 0;
+  let speedTimer = null;
+  let speedCount = 0;
+  const SPEED_TOTAL = 10; // Grade 1 friendly
+  speedTarget.textContent = String(SPEED_TOTAL);
+
+  function pickRandomIndex() {
+    if (FLAGS.length <= 1) return 0;
+    let idx = Math.floor(Math.random() * FLAGS.length);
+    // avoid immediate repeat
+    while (idx === currentIdx) idx = Math.floor(Math.random() * FLAGS.length);
+    return idx;
+  }
+
+  function currentFlag() {
+    return FLAGS[currentIdx] || FLAGS[0];
+  }
+
+  function setMode(newMode) {
+    mode = newMode;
+    tabs.forEach(t => t.classList.toggle("active", t.dataset.mode === mode));
+
+    modePill.textContent =
+      `Mode: ${mode === "learn" ? "Learn" : mode === "quiz" ? "Quiz (Oral)" : mode === "speed" ? "Speed Round" : "Progress"}`;
+
+    quizControls.style.display = (mode === "quiz") ? "flex" : "none";
+    speedControls.style.display = (mode === "speed") ? "flex" : "none";
+
+    const progressMode = (mode === "progress");
+    showBtn.disabled = progressMode;
+    nextBtn.disabled = progressMode;
+    repeatBtn.disabled = progressMode;
+    speakBtn.disabled = progressMode;
+
+    if (progressMode) {
+      promptLine.textContent = "Progress summary (right side).";
+      hintLine.textContent = "Switch to Learn/Quiz/Speed to continue.";
+      counterPill.textContent = "—";
+    } else {
+      nextRandomFlag(true);
+    }
+
+    renderStats();
+    renderList();
+  }
+
+  function renderRoundText() {
+    const f = currentFlag();
+    flagEmoji.textContent = f.emoji;
+    counterPill.textContent = "Random";
+
+    if (revealed) {
+      promptLine.textContent = `Answer: ${f.name}`;
+      hintLine.textContent = (mode === "learn")
+        ? "Tap Next ➜ for another random flag."
+        : "Now mark ✅ Correct or ❌ Wrong.";
+      return;
+    }
+
+    if (mode === "learn") {
+      promptLine.textContent = "Look at the flag 👀";
+      hintLine.textContent = "Tap Show Answer to learn the country name.";
+    } else if (mode === "quiz") {
+      promptLine.textContent = "Say the country name out loud 🎤";
+      hintLine.textContent = "Parent: tap ✅ Correct or ❌ Wrong.";
+    } else if (mode === "speed") {
+      promptLine.textContent = speedRunning ? "Go! Say it fast!" : "Press Start to begin.";
+      hintLine.textContent = "Tip: try to beat your time each round.";
+    }
+  }
+
+  function nextRandomFlag(alsoSpeak=false) {
+    revealed = false;
+    currentIdx = pickRandomIndex();
+    renderRoundText();
+    if (alsoSpeak) speakName(); // optional
+  }
+
+  function showAnswer() {
+    revealed = true;
+    renderRoundText();
+  }
+
+  function mark(correct) {
+    const f = currentFlag();
+    ensurePer(f.code);
+
+    state.attempts += 1;
+    state.per[f.code].attempts += 1;
+
+    if (correct) {
+      state.correct += 1;
+      state.per[f.code].correct += 1;
+      state.streak += 1;
+      if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    } else {
+      state.streak = 0;
+    }
+
+    saveState(state);
+    renderStats();
+    renderList();
+
+    // In quiz mode: automatically next random
+    nextRandomFlag(false);
+  }
+
+  function renderStats() {
+    attemptsV.textContent = state.attempts;
+    correctV.textContent = state.correct;
+    const acc = state.attempts ? Math.round((state.correct / state.attempts) * 100) : 0;
+    accuracyV.textContent = `${acc}%`;
+    streakV.textContent = state.bestStreak;
+  }
+
+  function renderList() {
+    const q = (searchBox.value || "").trim().toLowerCase();
+
+    // Build tried list only
+    const tried = Object.keys(state.per).map(code => {
+      const f = FLAGS.find(x => x.code === code);
+      if (!f) return null;
+      const p = state.per[code];
+      const a = p.attempts ? Math.round((p.correct / p.attempts) * 100) : 0;
+      return { ...f, attempts: p.attempts, correct: p.correct, acc: a };
+    }).filter(Boolean);
+
+    // Sort: lowest accuracy first, then most attempts
+    tried.sort((a,b) => (a.acc - b.acc) || (b.attempts - a.attempts));
+
+    const filtered = q
+      ? tried.filter(x => x.name.toLowerCase().includes(q) || x.code.toLowerCase().includes(q))
+      : tried;
+
+    flagList.innerHTML = "";
+    if (filtered.length === 0) {
+      const empty = document.createElement("div");
+      empty.className = "tiny";
+      empty.textContent = tried.length === 0
+        ? "No attempts yet. Start Quiz mode and mark ✅/❌ to build progress."
+        : "No matches for your search.";
+      flagList.appendChild(empty);
+      return;
+    }
+
+    for (const item of filtered.slice(0, 120)) { // keep UI fast
+      const el = document.createElement("div");
+      el.className = "li";
+      el.innerHTML = `
+        <div>
+          <div style="font-weight:700;">${item.emoji} ${item.name}</div>
+          <small>${item.correct}/${item.attempts} correct (${item.acc}%) • ${item.code}</small>
+        </div>
+        <button class="secondary" style="padding:10px 12px; border-radius:12px;">Practice</button>
+      `;
+      el.querySelector("button").addEventListener("click", () => {
+        if (mode === "progress") setMode("learn");
+        currentIdx = FLAGS.findIndex(x => x.code === item.code);
+        revealed = false;
+        renderRoundText();
+        speakName();
+      });
+      flagList.appendChild(el);
+    }
+  }
+
+  // =========================
+  // SPEECH
+  // =========================
+  function speak(text) {
+    if (!("speechSynthesis" in window)) {
+      voiceStatus.textContent = "Not supported";
+      return;
+    }
+    try {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.rate = parseFloat(rateSlider.value || "0.95");
+      u.pitch = 1.05;
+      u.onstart = () => voiceStatus.textContent = "Speaking…";
+      u.onend = () => voiceStatus.textContent = "Ready";
+      window.speechSynthesis.speak(u);
+    } catch {
+      voiceStatus.textContent = "Error";
+    }
+  }
+
+  function speakName() {
+    const f = currentFlag();
+    speak(f.name);
+  }
+
+  // =========================
+  // SPEED ROUND
+  // =========================
+  function startSpeed() {
+    speedRunning = true;
+    speedCount = 0;
+    speedDone.textContent = "0";
+    speedStart = Date.now();
+    speedTime.textContent = "0";
+
+    if (speedTimer) clearInterval(speedTimer);
+    speedTimer = setInterval(() => {
+      speedTime.textContent = String(Math.floor((Date.now() - speedStart) / 1000));
+    }, 250);
+
+    nextRandomFlag(false);
+    renderRoundText();
+  }
+
+  function stopSpeed() {
+    speedRunning = false;
+    if (speedTimer) clearInterval(speedTimer);
+    speedTimer = null;
+    hintLine.textContent = "Stopped. Press Start to try again!";
+    renderRoundText();
+  }
+
+  // In speed mode, Next advances the counter but still random each time.
+  function speedNext() {
+    if (!speedRunning) return;
+    speedCount++;
+    speedDone.textContent = String(speedCount);
+
+    if (speedCount >= SPEED_TOTAL) {
+      stopSpeed();
+      promptLine.textContent = "Finished! 🎉 Try again and beat your time.";
+      return;
+    }
+    nextRandomFlag(false);
+  }
+
+  // =========================
+  // EVENTS
+  // =========================
+  tabs.forEach(t => t.addEventListener("click", () => setMode(t.dataset.mode)));
+
+  nextBtn.addEventListener("click", () => {
+    if (mode === "speed") speedNext();
+    else nextRandomFlag(false);
+  });
+
+  showBtn.addEventListener("click", showAnswer);
+
+  repeatBtn.addEventListener("click", () => {
+    revealed = false;
+    renderRoundText();
+  });
+
+  correctBtn.addEventListener("click", () => mark(true));
+  wrongBtn.addEventListener("click", () => mark(false));
+
+  startSpeedBtn.addEventListener("click", startSpeed);
+  stopSpeedBtn.addEventListener("click", stopSpeed);
+
+  speakBtn.addEventListener("click", speakName);
+
+  resetBtn.addEventListener("click", () => {
+    if (!confirm("Reset all progress on this device?")) return;
+    state = freshState();
+    saveState(state);
+    renderStats();
+    renderList();
+    if (mode !== "progress") nextRandomFlag(false);
+  });
+
+  searchBox.addEventListener("input", renderList);
+
+  // =========================
+  // INIT
+  // =========================
+  voiceStatus.textContent = ("speechSynthesis" in window) ? "Ready" : "Not supported";
+  renderStats();
+  renderList();
+  // Start with a random flag (no auto-speak)
+  currentIdx = Math.floor(Math.random() * FLAGS.length);
+  renderRoundText();
+</script>
+
+</body>
+</html>
