@@ -14,7 +14,6 @@
     --good1:#34d399; --good2:#10b981;
     --shadow: 0 18px 45px rgba(15,23,42,.18);
   }
-
   *{ box-sizing:border-box; }
 
   body{
@@ -38,11 +37,10 @@
 
   .card{
     background: var(--card);
-    border: 2px solid rgba(15,23,42,.08);
     border-radius: 22px;
     padding: 14px 12px 16px;
     box-shadow: var(--shadow);
-    backdrop-filter: blur(6px);
+    border: 2px solid rgba(15,23,42,.08);
   }
 
   .tabs{
@@ -85,7 +83,6 @@
     border-color: rgba(251,113,133,.35);
   }
 
-  /* BIG obvious start */
   .startBtn{
     background: linear-gradient(180deg, var(--good1), var(--good2));
     color:#fff;
@@ -97,43 +94,71 @@
   .startBtn:hover{ filter:brightness(1.02); }
   .startBtn:active{ filter:brightness(.98); }
 
-  .row{
-    display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
-    margin-top:10px;
-  }
+  .row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px; }
   .msg{ font-size: 16px; margin: 10px 0 2px; }
   .hint{ font-size: 13px; color: var(--muted); margin: 0 0 8px; }
 
-  /* Memory grid (responsive to ANY phone/tablet) */
-  .memoryGrid{
-  display:grid;
-  grid-template-columns: repeat(2, 1fr); /* Always 2 per row */
-  gap:16px;
-  margin: 16px auto 0;
-  max-width: 600px;
-}
-  
-  .cell{
-  border-radius: 22px;
-  background: #ffffff;
-  border: 2px solid rgba(15,23,42,.12);
-  box-shadow: 0 12px 25px rgba(15,23,42,.10);
-  padding: 20px 10px;
-  min-height: 130px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size: 72px;  /* BIG FLAGS */
-}
-  @media (max-width: 380px){
-    .cell{ font-size: 42px; min-height: 78px; padding: 10px 6px; }
-    .startBtn{ font-size: 17px; padding: 14px 18px; }
+  /* Single-flag display */
+  .flagBox{
+    margin: 12px auto 6px;
+    max-width: 520px;
+    border-radius: 22px;
+    background: #ffffff;
+    border: 2px dashed rgba(15,23,42,.18);
+    padding: 16px 12px;
+  }
+  .flagImgBig{
+    width: min(320px, 85vw);
+    height: auto;
+    border-radius: 14px;
+    box-shadow: 0 10px 22px rgba(15,23,42,.10);
   }
 
+  /* Options (Quiz/Speed) */
+  .options{
+    display:grid;
+    gap:10px;
+    max-width: 680px;
+    margin: 12px auto 0;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 720px){ .options{ grid-template-columns: 1fr 1fr; } }
+
+  /* Memory grid: 2 columns + scroll */
+  .memoryGrid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:16px;
+    margin: 16px auto 0;
+    max-width: 640px;
+  }
+  .cell{
+    border-radius: 22px;
+    background: #fff;
+    border: 2px solid rgba(15,23,42,.12);
+    box-shadow: 0 12px 25px rgba(15,23,42,.10);
+    padding: 18px 10px;
+    min-height: 132px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .flagImg{
+    width: 92%;
+    max-width: 220px;
+    height: auto;
+    border-radius: 12px;
+    display:block;
+    box-shadow: 0 10px 18px rgba(15,23,42,.10);
+  }
+
+  /* Covered = clean flat card (no blur) */
   .covered{
-  background: #e5e7eb;
-  color: transparent;
-}
+    background:#e5e7eb;
+  }
+  .covered .flagImg{
+    opacity:0;
+  }
 
   .miniPill{
     display:inline-block;
@@ -171,12 +196,8 @@
 
   .hidden{ display:none; }
 
-  /* Gentle wiggle for attention */
   .wiggle{ animation: wiggle 1.2s ease-in-out infinite; }
-  @keyframes wiggle{
-    0%,100%{ transform: translateY(0); }
-    50%{ transform: translateY(-2px); }
-  }
+  @keyframes wiggle{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-2px); } }
 
   /* Confetti overlay */
   .confetti{
@@ -204,7 +225,7 @@
 <body>
 <div class="wrap">
   <h1>🏁 Flags Memory Game</h1>
-  <div class="sub">⭐ School Mode = <b>Level 1 (5 flags, 2 minutes)</b> ⭐</div>
+  <div class="sub">⭐ School Mode = <b>Memory Level 1 (5 flags, 2 minutes)</b> ⭐</div>
 
   <div class="tabs">
     <button id="tLearn" class="active primary" onclick="setMode('learn')">🌟 Learn</button>
@@ -218,7 +239,7 @@
 
     <!-- LEARN -->
     <div id="viewLearn">
-      <div style="margin-top:10px; font-size:86px;" id="learnFlag">🏳️</div>
+      <div class="flagBox"><img id="learnImg" class="flagImgBig" alt="flag" /></div>
       <div class="msg" id="learnMsg">Tap <b>Next</b> and say the country name!</div>
       <div class="row">
         <button class="primary" onclick="learnNext()">Next ➜</button>
@@ -229,14 +250,14 @@
 
     <!-- QUIZ -->
     <div id="viewQuiz" class="hidden">
-      <div style="margin-top:10px; font-size:86px;" id="quizFlag">🏳️</div>
+      <div class="flagBox"><img id="quizImg" class="flagImgBig" alt="flag" /></div>
       <div class="msg" id="quizMsg">Which country is this?</div>
       <div class="hint">Tap the right answer ✅</div>
       <div class="row">
         <button class="primary" onclick="newQuiz()">New Question</button>
         <button onclick="speakCurrent()">🔊 Pronounce</button>
       </div>
-      <div class="row" id="quizOptions" style="margin-top:12px;"></div>
+      <div class="options" id="quizOptions"></div>
     </div>
 
     <!-- MEMORY -->
@@ -244,7 +265,6 @@
       <div class="msg" id="memMsg"><b>Pick a Level</b> then press Start 🚀</div>
       <div class="hint">⭐ Level 1 = School • 🔥 Level 4 = Super Challenge</div>
 
-      <!-- Level buttons (hidden in focus mode) -->
       <div class="row" id="levelRow">
         <button id="lvl1" class="primary active" onclick="setLevel(1)">Level 1 ⭐ (5)</button>
         <button id="lvl2" class="primary" onclick="setLevel(2)">Level 2 ⭐⭐ (6)</button>
@@ -252,7 +272,6 @@
         <button id="lvl4" class="primary" onclick="setLevel(4)">Level 4 ⭐⭐⭐⭐ (10)</button>
       </div>
 
-      <!-- Controls (hidden in focus mode) -->
       <div class="row" id="controlRow">
         <button class="startBtn wiggle" id="startBtn" onclick="startMemory()">🚀 Start Game (2 min)</button>
         <button onclick="restartMemory()">🎲 New Set</button>
@@ -283,7 +302,7 @@
 
     <!-- SPEED -->
     <div id="viewSpeed" class="hidden">
-      <div style="margin-top:10px; font-size:86px;" id="speedFlag">🏳️</div>
+      <div class="flagBox"><img id="speedImg" class="flagImgBig" alt="flag" /></div>
       <div class="msg" id="speedMsg">Press Start for 10 quick questions!</div>
       <div class="row">
         <button class="startBtn" onclick="startSpeed()">⚡ Start</button>
@@ -291,7 +310,7 @@
         <button onclick="speakCurrent()">🔊 Pronounce</button>
       </div>
       <div class="miniPill">⏱ <span id="speedTime">0</span>s • ✅ <span id="speedCorrect">0</span> /10 • Done: <span id="speedDone">0</span></div>
-      <div class="row" id="speedOptions" style="margin-top:12px;"></div>
+      <div class="options" id="speedOptions"></div>
     </div>
 
   </div>
@@ -300,7 +319,7 @@
 <div id="confetti" class="confetti hidden"></div>
 
 <script>
-/* ========= Grade 1 shared list only (your set) ========= */
+/* ========= School shared list only ========= */
 const COUNTRY_CODES = `
 ML,MV,FR,BR,AU,
 AT,AR,BD,CA,DK,
@@ -318,14 +337,22 @@ SE,SD,SA,UA,TR,
 LK,SO,US,TG,TW
 `.replace(/\s+/g,"").split(",").filter(Boolean);
 
-const dn = (Intl && Intl.DisplayNames) ? new Intl.DisplayNames(["en"], { type:"region" }) : null;
-function codeToFlagEmoji(code){
-  return code.toUpperCase().replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0)));
+/* Flat flag image helper */
+function codeToFlagUrl(code){
+  // 160px wide (good balance for mobile)
+  return `https://flagcdn.com/w160/${code.toLowerCase()}.png`;
 }
+
+const dn = (Intl && Intl.DisplayNames) ? new Intl.DisplayNames(["en"], { type:"region" }) : null;
 function codeToName(code){
   return dn ? (dn.of(code.toUpperCase()) || code.toUpperCase()) : code.toUpperCase();
 }
-const FLAGS = COUNTRY_CODES.map(c => ({ code:c.toUpperCase(), emoji:codeToFlagEmoji(c), name:codeToName(c) }));
+
+const FLAGS = COUNTRY_CODES.map(c => ({
+  code: c.toUpperCase(),
+  name: codeToName(c),
+  img: codeToFlagUrl(c)
+}));
 
 /* Helpers */
 let current = null;
@@ -387,17 +414,19 @@ function setMode(mode){
 }
 
 /* Learn */
-const learnFlag = document.getElementById("learnFlag");
+const learnImg = document.getElementById("learnImg");
 const learnMsg = document.getElementById("learnMsg");
 
 function initLearn(){
   current = pickRandomFlag(current?.code);
-  learnFlag.textContent = current.emoji;
+  learnImg.src = current.img;
+  learnImg.alt = current.name + " flag";
   learnMsg.innerHTML = "Tap <b>Next</b> and say the country name!";
 }
 function learnNext(){
   current = pickRandomFlag(current?.code);
-  learnFlag.textContent = current.emoji;
+  learnImg.src = current.img;
+  learnImg.alt = current.name + " flag";
   learnMsg.textContent = "Say it out loud 🎤";
 }
 function learnShow(){
@@ -405,13 +434,14 @@ function learnShow(){
 }
 
 /* Quiz */
-const quizFlag = document.getElementById("quizFlag");
+const quizImg = document.getElementById("quizImg");
 const quizMsg = document.getElementById("quizMsg");
 const quizOptions = document.getElementById("quizOptions");
 
 function newQuiz(){
   current = pickRandomFlag(current?.code);
-  quizFlag.textContent = current.emoji;
+  quizImg.src = current.img;
+  quizImg.alt = current.name + " flag";
   quizMsg.textContent = "Which country is this?";
   quizOptions.innerHTML = "";
   sampleWrongAnswers(current, 3).forEach(opt=>{
@@ -427,7 +457,7 @@ function newQuiz(){
   });
 }
 
-/* Memory with responsive + focus mode + celebration + auto level up */
+/* Memory */
 const memMsg = document.getElementById("memMsg");
 const memTimer = document.getElementById("memTimer");
 const memGrid = document.getElementById("memGrid");
@@ -449,17 +479,15 @@ const controlRow = document.getElementById("controlRow");
 const startBtn = document.getElementById("startBtn");
 
 let memSet = [];
-const memSeconds = 120; // fixed 2 min
+const memSeconds = 120;
 let memInterval = null;
-let memState = "idle"; // idle | showing | covered | revealed
+let memState = "idle";
 let recallScore = 0;
 
 let level = 1;
 let memCount = 5;
 
-const LEVELS = {
-  1:{count:5}, 2:{count:6}, 3:{count:8}, 4:{count:10}
-};
+const LEVELS = { 1:{count:5}, 2:{count:6}, 3:{count:8}, 4:{count:10} };
 
 function setLevel(l){
   level = l;
@@ -508,13 +536,12 @@ function renderMemoryGrid(covered=false){
   memSet.forEach(f=>{
     const d=document.createElement("div");
     d.className="cell"+(covered?" covered":"");
-    d.textContent=f.emoji;
+    d.innerHTML = `<img src="${f.img}" class="flagImg" alt="${f.name} flag">`;
     memGrid.appendChild(d);
   });
 }
 
 function setFocusMode(on){
-  // Hide level/start controls while memorizing
   levelRow.classList.toggle("hidden", on);
   controlRow.classList.toggle("hidden", on);
   startBtn.classList.toggle("wiggle", !on);
@@ -547,7 +574,7 @@ function startMemory(){
   btnReveal.disabled=true;
   btnSpeakAll.disabled=true;
 
-  setFocusMode(true); // ✅ focus while memorizing
+  setFocusMode(true);
 
   let remaining = memSeconds;
   memTimer.textContent="02:00";
@@ -560,11 +587,10 @@ function startMemory(){
     memTimer.textContent = `${m}:${s}`;
     if (remaining<=0){
       stopMemoryTimer();
-      coverMemory(true); // auto cover
+      coverMemory(true);
     }
   }, 1000);
 
-  // Scroll to grid nicely on small screens
   setTimeout(()=>{ memGrid.scrollIntoView({behavior:"smooth", block:"center"}); }, 150);
 }
 
@@ -581,11 +607,10 @@ function coverMemory(auto){
   recallBox.classList.remove("hidden");
   recallScore=0; updateRecallUI();
 
-  // Keep focus mode ON while recalling
   setFocusMode(true);
 
   memMsg.innerHTML = auto
-    ? "🙈 Time’s up! Flags covered. Say the names! (You tap ✅)"
+    ? "🙈 Time’s up! Covered. Say the names! (You tap ✅)"
     : "🙈 Covered! Say the names! (You tap ✅)";
 }
 
@@ -614,7 +639,6 @@ function showConfetti(){
     const p=document.createElement("i");
     p.style.left = Math.random()*100 + "vw";
     p.style.background = colors[Math.floor(Math.random()*colors.length)];
-    p.style.transform = `translateY(-10px) rotate(${Math.random()*180}deg)`;
     p.style.animationDelay = (Math.random()*0.25) + "s";
     p.style.width = (8 + Math.random()*8) + "px";
     p.style.height = (10 + Math.random()*14) + "px";
@@ -650,10 +674,7 @@ function revealAnswers(){
 
   memMsg.innerHTML = `👀 Score: <b>${recallScore}/${memCount}</b> • Best L${level}: <b>${loadBest()}/${memCount}</b>`;
 
-  // After showing answers, bring controls back so parent can start again
   setTimeout(()=>{ setFocusMode(false); }, 450);
-
-  // Auto level up if perfect
   levelUpIfPerfect();
 }
 
@@ -675,7 +696,7 @@ function restartMemory(){
 }
 
 /* Speed */
-const speedFlag = document.getElementById("speedFlag");
+const speedImg = document.getElementById("speedImg");
 const speedMsg = document.getElementById("speedMsg");
 const speedOptions = document.getElementById("speedOptions");
 const speedTime = document.getElementById("speedTime");
@@ -685,7 +706,9 @@ const speedCorrect = document.getElementById("speedCorrect");
 let speedRunning=false, speedStartAt=0, speedTimerInt=null, speedQ=0, speedC=0;
 
 function initSpeedView(){
-  speedFlag.textContent = pickRandomFlag()?.emoji || "🏳️";
+  current = pickRandomFlag(current?.code);
+  speedImg.src = current.img;
+  speedImg.alt = current.name + " flag";
   speedMsg.textContent = "Press Start for 10 quick questions!";
   speedOptions.innerHTML="";
   speedTime.textContent="0"; speedDone.textContent="0"; speedCorrect.textContent="0";
@@ -711,7 +734,8 @@ function nextSpeedQuestion(){
     return;
   }
   current = pickRandomFlag(current?.code);
-  speedFlag.textContent = current.emoji;
+  speedImg.src = current.img;
+  speedImg.alt = current.name + " flag";
   speedMsg.textContent = "Tap the right country name!";
   speedOptions.innerHTML="";
   sampleWrongAnswers(current,3).forEach(opt=>{
